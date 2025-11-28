@@ -8,21 +8,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const lightboxNext = document.getElementById('lightbox-next');
 
     let currentImageIndex = 0;
+    let allPhotos = [];
+
+    // Load photos from both config.js and localStorage
+    function loadPhotos() {
+        const localPhotos = JSON.parse(localStorage.getItem('maverickPhotos') || '[]');
+        // Combine and remove duplicates
+        allPhotos = [...new Set([...MAVERICK_PHOTOS, ...localPhotos])];
+        return allPhotos;
+    }
 
     // Initialize gallery
     function initGallery() {
-        if (MAVERICK_PHOTOS.length === 0) {
+        const photos = loadPhotos();
+
+        if (photos.length === 0) {
             gallery.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
                     <h2 style="color: #555; margin-bottom: 20px;">No photos yet!</h2>
                     <p style="color: #777; font-size: 1.1rem;">Upload some photos of Maverick to get started.</p>
-                    <p style="color: #777; margin-top: 15px;">Check out the <code>README.md</code> file for upload instructions.</p>
+                    <p style="color: #777; margin-top: 15px;">
+                        <a href="upload.html" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                            📤 Click here to upload photos →
+                        </a>
+                    </p>
                 </div>
             `;
             return;
         }
 
-        MAVERICK_PHOTOS.forEach((photoId, index) => {
+        photos.forEach((photoId, index) => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
             item.dataset.index = index;
@@ -59,20 +74,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update lightbox image
     function updateLightboxImage() {
-        const photoId = MAVERICK_PHOTOS[currentImageIndex];
+        const photoId = allPhotos[currentImageIndex];
         // Use higher quality variant for lightbox
         lightboxImage.src = getImageUrl(photoId, 'public');
     }
 
     // Navigate to previous image
     function previousImage() {
-        currentImageIndex = (currentImageIndex - 1 + MAVERICK_PHOTOS.length) % MAVERICK_PHOTOS.length;
+        currentImageIndex = (currentImageIndex - 1 + allPhotos.length) % allPhotos.length;
         updateLightboxImage();
     }
 
     // Navigate to next image
     function nextImage() {
-        currentImageIndex = (currentImageIndex + 1) % MAVERICK_PHOTOS.length;
+        currentImageIndex = (currentImageIndex + 1) % allPhotos.length;
         updateLightboxImage();
     }
 

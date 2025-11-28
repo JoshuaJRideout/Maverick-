@@ -14,16 +14,31 @@ A sleek, modern photo gallery website for Maverick, powered by Cloudflare Images
 
 ### 1. Upload Photos to Cloudflare Images
 
-You have three options to upload photos:
+**🎉 EASIEST METHOD: Use the Built-in Upload Page!**
 
-#### Option A: Upload via Cloudflare Dashboard (Easiest)
+Simply open `upload.html` in your browser (or visit it on your deployed site) and follow the simple 3-step process:
+1. Enter your Cloudflare API token (one-time setup)
+2. Select and upload Maverick's photos
+3. Done! Photos automatically appear in the gallery
+
+**Getting your API Token:**
+1. Go to https://dash.cloudflare.com/profile/api-tokens
+2. Click "Create Token"
+3. Use "Edit Cloudflare Images" template
+4. Copy the token and paste it in the upload page
+
+---
+
+**Alternative Methods:**
+
+#### Option A: Upload via Cloudflare Dashboard
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
 2. Navigate to **Images** section
 3. Click **Upload Images**
 4. Select your best photos of Maverick
 5. Copy each image ID after upload
 
-#### Option B: Upload via Script (Recommended)
+#### Option B: Upload via Command-Line Script
 1. Get your Cloudflare API Token:
    - Go to https://dash.cloudflare.com/profile/api-tokens
    - Click "Create Token"
@@ -49,9 +64,11 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/9f9fcbb3e4b19d0e0e3f
   -F "file=@/path/to/image.jpg"
 ```
 
-### 2. Add Image IDs to Configuration
+### 2. Add Image IDs to Configuration (Only for Option A/B/C)
 
-Open `config.js` and add your uploaded image IDs:
+**Note:** If you used `upload.html`, skip this step - images are automatically configured!
+
+For manual uploads, open `config.js` and add your uploaded image IDs:
 
 ```javascript
 const MAVERICK_PHOTOS = [
