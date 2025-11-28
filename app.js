@@ -1,114 +1,75 @@
-// Gallery and Lightbox functionality
+// Smooth scroll animations and interactions
 document.addEventListener('DOMContentLoaded', function() {
-    const gallery = document.getElementById('gallery');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImage = document.getElementById('lightbox-image');
-    const lightboxClose = document.getElementById('lightbox-close');
-    const lightboxPrev = document.getElementById('lightbox-prev');
-    const lightboxNext = document.getElementById('lightbox-next');
+    // Add intersection observer for fade-in animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
 
-    let currentImageIndex = 0;
-
-    // Initialize gallery
-    function initGallery() {
-        if (MAVERICK_PHOTOS.length === 0) {
-            gallery.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-                    <h2 style="color: #555; margin-bottom: 20px;">No photos yet!</h2>
-                    <p style="color: #777; font-size: 1.1rem;">Add some photos of Maverick to get started.</p>
-                    <p style="color: #777; margin-top: 15px;">
-                        Put your photos in the <code>images</code> folder and add the filenames to <code>config.js</code>
-                    </p>
-                </div>
-            `;
-            return;
-        }
-
-        MAVERICK_PHOTOS.forEach((filename, index) => {
-            const item = document.createElement('div');
-            item.className = 'gallery-item';
-            item.dataset.index = index;
-
-            const img = document.createElement('img');
-            img.src = `images/${filename}`;
-            img.alt = `Maverick photo ${index + 1}`;
-            img.loading = 'lazy';
-
-            // Add loading state
-            item.classList.add('loading');
-            img.onload = () => item.classList.remove('loading');
-            img.onerror = () => {
-                item.classList.remove('loading');
-                item.innerHTML = '<div style="padding: 20px; color: #999;">Image not found</div>';
-            };
-
-            item.appendChild(img);
-            item.addEventListener('click', () => openLightbox(index));
-            gallery.appendChild(item);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
         });
-    }
+    }, observerOptions);
 
-    // Open lightbox
-    function openLightbox(index) {
-        currentImageIndex = index;
-        updateLightboxImage();
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+    // Observe all sections
+    document.querySelectorAll('.feature, .photo-showcase, .tech-specs').forEach(section => {
+        observer.observe(section);
+    });
 
-    // Close lightbox
-    function closeLightbox() {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    // Update lightbox image
-    function updateLightboxImage() {
-        const filename = MAVERICK_PHOTOS[currentImageIndex];
-        lightboxImage.src = `images/${filename}`;
-    }
-
-    // Navigate to previous image
-    function previousImage() {
-        currentImageIndex = (currentImageIndex - 1 + MAVERICK_PHOTOS.length) % MAVERICK_PHOTOS.length;
-        updateLightboxImage();
-    }
-
-    // Navigate to next image
-    function nextImage() {
-        currentImageIndex = (currentImageIndex + 1) % MAVERICK_PHOTOS.length;
-        updateLightboxImage();
-    }
-
-    // Event listeners
-    lightboxClose.addEventListener('click', closeLightbox);
-    lightboxPrev.addEventListener('click', previousImage);
-    lightboxNext.addEventListener('click', nextImage);
-
-    // Close on background click
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) {
-            closeLightbox();
+    // Parallax effect for hero
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero-main');
+        if (hero && scrolled < window.innerHeight) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            hero.style.opacity = 1 - (scrolled / window.innerHeight) * 0.8;
         }
     });
 
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (!lightbox.classList.contains('active')) return;
+    // Add smooth reveal to stats
+    const stats = document.querySelectorAll('.stat-number');
+    const statObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'scale(1)';
+            }
+        });
+    }, {threshold: 0.5});
 
-        switch(e.key) {
-            case 'Escape':
-                closeLightbox();
-                break;
-            case 'ArrowLeft':
-                previousImage();
-                break;
-            case 'ArrowRight':
-                nextImage();
-                break;
-        }
+    stats.forEach(stat => {
+        stat.style.opacity = '0';
+        stat.style.transform = 'scale(0.8)';
+        stat.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        statObserver.observe(stat);
     });
 
-    // Initialize the gallery
-    initGallery();
+    // Add hover effect to photo items
+    document.querySelectorAll('.photo-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+        });
+
+        item.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+        });
+    });
+
+    // Smooth scroll for any internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
 });
