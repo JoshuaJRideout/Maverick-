@@ -8,49 +8,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const lightboxNext = document.getElementById('lightbox-next');
 
     let currentImageIndex = 0;
-    let allPhotos = [];
-
-    // Load photos from both config.js and localStorage
-    function loadPhotos() {
-        const localPhotos = JSON.parse(localStorage.getItem('maverickPhotos') || '[]');
-        // Combine and remove duplicates
-        allPhotos = [...new Set([...MAVERICK_PHOTOS, ...localPhotos])];
-        return allPhotos;
-    }
 
     // Initialize gallery
     function initGallery() {
-        const photos = loadPhotos();
-
-        if (photos.length === 0) {
+        if (MAVERICK_PHOTOS.length === 0) {
             gallery.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
                     <h2 style="color: #555; margin-bottom: 20px;">No photos yet!</h2>
-                    <p style="color: #777; font-size: 1.1rem;">Upload some photos of Maverick to get started.</p>
+                    <p style="color: #777; font-size: 1.1rem;">Add some photos of Maverick to get started.</p>
                     <p style="color: #777; margin-top: 15px;">
-                        <a href="upload.html" style="color: #667eea; text-decoration: none; font-weight: 600;">
-                            📤 Click here to upload photos →
-                        </a>
+                        Put your photos in the <code>images</code> folder and add the filenames to <code>config.js</code>
                     </p>
                 </div>
             `;
             return;
         }
 
-        photos.forEach((photoId, index) => {
+        MAVERICK_PHOTOS.forEach((filename, index) => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
             item.dataset.index = index;
 
             const img = document.createElement('img');
-            // Use a smaller variant for thumbnails for better performance
-            img.src = getImageUrl(photoId, 'public');
+            img.src = `images/${filename}`;
             img.alt = `Maverick photo ${index + 1}`;
             img.loading = 'lazy';
 
             // Add loading state
             item.classList.add('loading');
             img.onload = () => item.classList.remove('loading');
+            img.onerror = () => {
+                item.classList.remove('loading');
+                item.innerHTML = '<div style="padding: 20px; color: #999;">Image not found</div>';
+            };
 
             item.appendChild(img);
             item.addEventListener('click', () => openLightbox(index));
@@ -74,20 +64,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update lightbox image
     function updateLightboxImage() {
-        const photoId = allPhotos[currentImageIndex];
-        // Use higher quality variant for lightbox
-        lightboxImage.src = getImageUrl(photoId, 'public');
+        const filename = MAVERICK_PHOTOS[currentImageIndex];
+        lightboxImage.src = `images/${filename}`;
     }
 
     // Navigate to previous image
     function previousImage() {
-        currentImageIndex = (currentImageIndex - 1 + allPhotos.length) % allPhotos.length;
+        currentImageIndex = (currentImageIndex - 1 + MAVERICK_PHOTOS.length) % MAVERICK_PHOTOS.length;
         updateLightboxImage();
     }
 
     // Navigate to next image
     function nextImage() {
-        currentImageIndex = (currentImageIndex + 1) % allPhotos.length;
+        currentImageIndex = (currentImageIndex + 1) % MAVERICK_PHOTOS.length;
         updateLightboxImage();
     }
 

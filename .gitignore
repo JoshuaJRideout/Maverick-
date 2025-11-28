@@ -1,11 +1,3 @@
-# Local images (we use Cloudflare Images instead)
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.webp
-*.heic
-
 # Node modules (if you add any npm packages later)
 node_modules/
 
